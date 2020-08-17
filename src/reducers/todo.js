@@ -1,4 +1,4 @@
-import { ADD_TO_LIST } from "../actions/actionTypes";
+import { ADD_TO_LIST, BY_SNAP } from "../actions/actionTypes";
 
 const initialToDoState = {
   items: [],
@@ -10,9 +10,13 @@ export default function toDo(state = initialToDoState, action) {
       return {
         items: [action.data, ...state.items],
       };
-      default :
 
+    case BY_SNAP:
+      return {
+        items: [],
+      };
+
+    default:
       return state;
-
   }
 }
