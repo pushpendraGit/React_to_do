@@ -218,7 +218,7 @@ function App(props) {
           <div>
           {user ? (
 
-            <div>
+            <div className='au'>
               <Button variant="contained">{user.displayName}</Button>
             
             <Button variant="contained" onClick={() => firebase.auth().signOut()}>Log Out</Button>

@@ -115,5 +115,17 @@
   display: flex;
   flex-direction: column;
 }
+.au{
+
+  display: flex;
+  justify-content: space-between;
+}
+
+.au Button{
+
+  margin-left: 10px;
+
+
+}
 
 
