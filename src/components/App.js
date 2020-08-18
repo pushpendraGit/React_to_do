@@ -1,8 +1,9 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import * as firebase from "firebase";
+import "./App.css";
 
-import toDo, { bySnap } from "../actions/todo";
+import toDo, { bySnap, remove } from "../actions/todo";
 import { Button, Input } from "@material-ui/core";
 import ToDoItems from "./ToDoItems";
 
@@ -11,6 +12,7 @@ class App extends Component {
     super(props);
 
     this.state = {
+      items: [],
       content: "",
     };
 
@@ -22,16 +24,11 @@ class App extends Component {
   componentDidMount() {
     this.db.collection("items").onSnapshot((snapshot) => {
       const items = snapshot.docs.map((doc) => {
-        const content = doc.data().item;
-        const id = doc.id;
-
-        const data = {
-          content,
-          id
-        }
-
-        this.props.dispatch(toDo(data));
+        const data = doc.data();
+        data["id"] = doc.id;
+        return data;
       });
+      this.setState({ items: items });
     });
   }
 
@@ -41,19 +38,16 @@ class App extends Component {
     });
   };
 
-  handleToDo = () => {
+  addProduct = () => {
     const { content } = this.state;
-
-    this.props.dispatch(bySnap());
-
     this.db
       .collection("items")
       .add({
-        item: content,
+        content: content,
       })
       .then((docRef) => {
         docRef.get().then((snapshot) => {
-          // console.log("Product has been added", snapshot.data());
+          console.log("Product has been added", snapshot.data());
         });
       })
       .catch((error) => {
@@ -61,29 +55,30 @@ class App extends Component {
       });
   };
 
+  // for delete
 
   handleDeleteProduct = (id) => {
-   
+    console.log("Reached to delete products");
 
-   
     const docRef = this.db.collection("items").doc(id);
-
-    console.log('Your docref to delete is', docRef);
 
     docRef
       .delete()
       .then(() => {})
       .catch((error) => {
-        //console.log('Error in deteting the product from firebase', error);
+        console.log("Error in deteting the product from firebase", error);
       });
   };
 
   render() {
-    const { items } = this.props.toDo;
+    const { items } = this.state;
 
-    console.log("Your all props is ", toDo);
+    console.log("Your all props is ", items);
 
     return (
+     
+        
+     
       <div className="app">
         <div className="todo__container">
           <div className="todo__input">
@@ -97,17 +92,23 @@ class App extends Component {
             <Button
               variant="contained"
               color="secondary"
-              onClick={this.handleToDo}
+              onClick={this.addProduct}
             >
               Add ToDo
             </Button>
           </div>
-
-          {items.map((item) => (
-            <ToDoItems item={item} key={item.id}   handleDeleteProduct={this.handleDeleteProduct}  />
-          ))}
+          <div className="todo__content">
+            {items.map((item) => (
+              <ToDoItems
+                item={item}
+                key={item.id}
+                handleDeleteProduct={this.handleDeleteProduct}
+              />
+            ))}
+          </div>
         </div>
       </div>
+ 
     );
   }
 }

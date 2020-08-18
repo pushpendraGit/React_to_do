@@ -1,4 +1,4 @@
-import { ADD_TO_LIST, BY_SNAP } from "../actions/actionTypes";
+import { ADD_TO_LIST, BY_SNAP, DELETE_ITEM } from "../actions/actionTypes";
 
 const initialToDoState = {
   items: [],
@@ -15,6 +15,18 @@ export default function toDo(state = initialToDoState, action) {
       return {
         items: [],
       };
+
+      case DELETE_ITEM:
+
+        const filterdArray = state.items.filter(item => item.id !== action.id);
+
+        console.log('Your Filtered array is', filterdArray);
+
+        return {
+      
+          items:filterdArray
+
+        }
 
     default:
       return state;
