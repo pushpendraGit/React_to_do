@@ -11,6 +11,28 @@
 
 }
 
+.nav{
+
+  height: 80px;
+  width: 99vw;
+  border: 2px solid black;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  
+}
+
+.nav__logo{
+
+  height: 100%;
+  width: fit-content;
+  border: 1px solid rebeccapurple;
+  display: flex;
+  align-items: center;
+  font-size: 30px;
+  font-weight: 600;
+}
+
 .todo__container{
 
   
@@ -60,4 +82,32 @@
   font-size: 20px;
   font-weight: 500;
 }
+
+
+.app {
+  background-color: #fafafa;
+ 
+}
+
+.app__header {
+  background-color: white;
+  padding: 20px;
+  object-fit: contain;
+
+  border-bottom: 1px soli lightgray;
+}
+
+.app__headerImage {
+  height: 50px;
+  width: 100px;
+
+  object-fit: contain;
+}
+
+.app__signup{
+
+  display: flex;
+  flex-direction: column;
+}
+
 

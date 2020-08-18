@@ -1,46 +1,89 @@
-import React, { Component } from "react";
-import { connect } from "react-redux";
+import React, { useState, useEffect } from "react";
+import { makeStyles } from "@material-ui/core/styles";
+import Modal from "@material-ui/core/Modal";
 import * as firebase from "firebase";
 import "./App.css";
 
-import toDo, { bySnap, remove } from "../actions/todo";
-import { Button, Input } from "@material-ui/core";
 import ToDoItems from "./ToDoItems";
 
-class App extends Component {
-  constructor(props) {
-    super(props);
+import "./App.css";
 
-    this.state = {
-      items: [],
-      content: "",
-    };
+import { Button, Input } from "@material-ui/core";
 
-    this.db = firebase.firestore();
-  }
+function rand() {
+  return Math.round(Math.random() * 20) - 10;
+}
 
-  // This is For Firebase
+function getModalStyle() {
+  const top = 50;
+  const left = 50;
 
-  componentDidMount() {
-    this.db.collection("items").onSnapshot((snapshot) => {
-      const items = snapshot.docs.map((doc) => {
-        const data = doc.data();
-        data["id"] = doc.id;
-        return data;
-      });
-      this.setState({ items: items });
-    });
-  }
-
-  handleChange = (e) => {
-    this.setState({
-      content: e.target.value,
-    });
+  return {
+    top: `${top}%`,
+    left: `${left}%`,
+    transform: `translate(-${top}%, -${left}%)`,
   };
+}
 
-  addProduct = () => {
-    const { content } = this.state;
-    this.db
+const useStyles = makeStyles((theme) => ({
+  paper: {
+    position: "absolute",
+    width: 400,
+    backgroundColor: theme.palette.background.paper,
+    border: "2px solid #000",
+    boxShadow: theme.shadows[5],
+    padding: theme.spacing(2, 4, 3),
+  },
+}));
+
+function App(props) {
+  const [items, setItems] = useState([]);
+  const [content, setContent] = useState("");
+
+  const classes = useStyles();
+  const [modalStyle] = useState(getModalStyle);
+
+  const [open, setOpen] = useState(false);
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const [user, setUser] = useState(null);
+
+  const [openSignin, setOpenSignin] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = firebase.auth().onAuthStateChanged((authUser) => {
+      if (authUser) {
+        console.log(authUser);
+        setUser(authUser);
+      } else {
+        setUser(null);
+      }
+    });
+
+    return () => {
+      //perform some clenup
+
+      unsubscribe();
+    };
+  }, [user, username]);
+
+  useEffect(() => {
+    firebase
+      .firestore()
+      .collection("items")
+      .onSnapshot((snapshot) => {
+        console.log(snapshot.docs.doc);
+        setItems(
+          snapshot.docs.map((doc) => ({ id: doc.id, content: doc.data() }))
+        );
+      });
+  }, []);
+
+  const addProduct = () => {
+    firebase
+      .firestore()
       .collection("items")
       .add({
         content: content,
@@ -55,12 +98,10 @@ class App extends Component {
       });
   };
 
-  // for delete
-
-  handleDeleteProduct = (id) => {
+  const handleDeleteProduct = (id) => {
     console.log("Reached to delete products");
 
-    const docRef = this.db.collection("items").doc(id);
+    const docRef = firebase.firestore().collection("items").doc(id);
 
     docRef
       .delete()
@@ -70,55 +111,149 @@ class App extends Component {
       });
   };
 
-  render() {
-    const { items } = this.state;
+  const handleSignup = (event) => {
+    event.preventDefault();
+    firebase
+      .auth()
+      .createUserWithEmailAndPassword(email, password)
+      .then((authUser) => {
+        return authUser.user.updateProfile({
+          displayName: username,
+        });
+      })
+      .catch((error) => alert(error.message));
 
-    console.log("Your all props is ", items);
+    setOpen(false);
+  };
 
-    return (
-     
-        
-     
-      <div className="app">
-        <div className="todo__container">
-          <div className="todo__input">
+  const handleSignin = (event) => {
+    event.preventDefault();
+
+    firebase
+      .auth()
+      .signInWithEmailAndPassword(email, password)
+      .catch((error) => alert(error.message));
+
+    setOpenSignin(false);
+  };
+
+
+  
+
+  return (
+    <div className="app">
+      <Modal open={open} onClose={() => setOpen(false)}>
+        <div style={modalStyle} className={classes.paper}>
+          <form className="app__signup">
+            <center>
+              <img
+                className="app__headerImage"
+                src="https://en.instagram-brand.com/wp-content/themes/ig-branding/prj-ig-branding/assets/images/ig-logo-black.svg"
+              />
+            </center>
+
             <Input
+              placeholder="UserName"
               type="text"
-              onChange={this.handleChange}
-              required
-              placeholder="Enter Todo"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
             />
 
-            <Button
-              variant="contained"
-              color="secondary"
-              onClick={this.addProduct}
-            >
-              Add ToDo
-            </Button>
-          </div>
-          <div className="todo__content">
-            {items.map((item) => (
-              <ToDoItems
-                item={item}
-                key={item.id}
-                handleDeleteProduct={this.handleDeleteProduct}
+            <Input
+              placeholder="Email"
+              type="text"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+
+            <Input
+              placeholder="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+
+            <Button onClick={handleSignup}>Log-in</Button>
+          </form>
+        </div>
+      </Modal>
+
+      {/* sign */}
+
+      <Modal open={openSignin} onClose={() => setOpenSignin(false)}>
+        <div style={modalStyle} className={classes.paper}>
+          <form className="app__signup">
+            <center>
+              <img
+                className="app__headerImage"
+                src="https://en.instagram-brand.com/wp-content/themes/ig-branding/prj-ig-branding/assets/images/ig-logo-black.svg"
               />
-            ))}
+            </center>
+
+            <Input
+              placeholder="Email"
+              type="text"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+
+            <Input
+              placeholder="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+
+            <Button onClick={handleSignin}>Sign In</Button>
+          </form>
+        </div>
+      </Modal>
+
+      <div className="nav">
+        <div className="nav__logo">To-Do</div>
+
+ 
+       
+
+          <div>
+          {user ? (
+
+            <div>
+              <span>{user.displayName}</span>
+            
+            <Button onClick={() => firebase.auth().signOut()}>Log Out</Button>
+            </div>
+          ) : (
+            <div className="app__loginContainer">
+              <Button onClick={() => setOpenSignin(true)}>Sign In</Button>
+              <Button onClick={() => setOpen(true)}>Sign UP</Button>
+            </div>
+          )}
           </div>
+        
+      </div>
+      <div className="todo__container">
+        <div className="todo__input">
+          <Input
+            type="text"
+            onChange={(e) => setContent(e.target.value)}
+            required
+            placeholder="Enter Todo"
+          />
+
+          <Button variant="contained" color="secondary" onClick={addProduct}>
+            Add ToDo
+          </Button>
+        </div>
+        <div className="todo__content">
+          {user ? items.map((item) => (
+            <ToDoItems item={item} handleDeleteProduct={handleDeleteProduct} />
+          )) : <h2>Sign-In To See To-Do</h2> }
+          
         </div>
       </div>
- 
-    );
-  }
+    </div>
+  );
 }
 
-//Direct using es 6 method
-
-function mapStateToProps({ toDo }) {
-  return {
-    toDo,
-  };
-}
-
-export default connect(mapStateToProps)(App);
+export default App;

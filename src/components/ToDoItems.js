@@ -11,10 +11,10 @@ class ToDoItems extends Component {
     const { item, handleDeleteProduct } = this.props;
 
     console.log('Your id is', item.id);
-    console.log(item);
+    console.log('Your item content',item.content.content);
     return (
       <div className="content">
-        <div className="text">{item.content}</div>
+        <div className="text">{item.content.content}</div>
         <Button variant="contained" color="secondary" onClick={() => handleDeleteProduct(item.id)} >
           Delete
         </Button>
