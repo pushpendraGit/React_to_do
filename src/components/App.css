@@ -19,6 +19,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  background-color: black;
   
 }
 
@@ -26,13 +27,18 @@
 
   height: 100%;
   width: fit-content;
-  border: 1px solid rebeccapurple;
+ 
   display: flex;
   align-items: center;
   font-size: 30px;
   font-weight: 600;
-}
+  color: white;
 
+}
+.nav__logo:hover{
+  color: cyan;
+ 
+}
 .todo__container{
 
   

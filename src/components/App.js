@@ -219,14 +219,14 @@ function App(props) {
           {user ? (
 
             <div>
-              <span>{user.displayName}</span>
+              <Button variant="contained">{user.displayName}</Button>
             
-            <Button onClick={() => firebase.auth().signOut()}>Log Out</Button>
+            <Button variant="contained" onClick={() => firebase.auth().signOut()}>Log Out</Button>
             </div>
           ) : (
             <div className="app__loginContainer">
-              <Button onClick={() => setOpenSignin(true)}>Sign In</Button>
-              <Button onClick={() => setOpen(true)}>Sign UP</Button>
+              <Button variant="contained" onClick={() => setOpenSignin(true)}>Sign In</Button>
+              <Button variant="contained" onClick={() => setOpen(true)}>Sign UP</Button>
             </div>
           )}
           </div>
